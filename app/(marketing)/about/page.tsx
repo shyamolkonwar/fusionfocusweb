@@ -41,7 +41,7 @@ export default async function AboutPage() {
     {
       section_name: "story",
       title: "Our Story",
-      content: "<p>Fusion Focus was born from a simple observation: SaaS founders were making critical business decisions based on intuition rather than data. Our founder, having worked with numerous startups, witnessed how this approach often led to misaligned products, ineffective marketing, and stunted growth.</p><p>We started as a small research team in 2020, dedicated to providing affordable, high-quality market insights to early-stage SaaS companies. Since then, we've expanded our services and team, while maintaining our core commitment to data-driven decision making.</p>",
+      content: "<p>Fusion Focus was born from a simple observation: SaaS founders were making critical business decisions based on intuition rather than data. Our founder, having worked with numerous startups, witnessed how this approach often led to misaligned products, ineffective marketing, and stunted growth.</p><p>We started as a small research team in 2024, dedicated to providing affordable, high-quality market insights to early-stage SaaS companies. Since then, we've expanded our services and team, while maintaining our core commitment to data-driven decision making.</p>",
     },
     {
       section_name: "values",

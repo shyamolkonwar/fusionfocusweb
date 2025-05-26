@@ -3,8 +3,9 @@
 import { useRef, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, Users, FileText } from "lucide-react";
+import { ArrowRight, BarChart3, Users, CodeIcon } from "lucide-react";
 import { useInView } from "framer-motion";
+
 
 const features = [
   {
@@ -18,9 +19,9 @@ const features = [
     description: "Deep understanding of your SaaS customers and their needs"
   },
   {
-    icon: FileText,
-    title: "Actionable Reports",
-    description: "Clear, concise reports with implementable strategies"
+    icon: CodeIcon,
+    title: "Vibe Code Friendly",
+    description: "We make sure your growth strategies are compatible with no-code tools."
   }
 ];
 

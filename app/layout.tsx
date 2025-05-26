@@ -9,7 +9,7 @@ import { usePathname } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Fusion Focus | Market Research for SaaS Founders',
+    default: 'Fusion Focus | All in one platform for SaaS Founders',
     template: '%s | Fusion Focus',
   },
   description: 'Empowering SaaS founders with data-driven market research, content marketing, and lead generation strategies.',
@@ -19,14 +19,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://fusionfocus.com',
-    title: 'Fusion Focus | Market Research for SaaS Founders',
+    url: 'https://fusionfocus.in',
+    title: 'Fusion Focus | All in one platform for SaaS Founders',
     description: 'Empowering SaaS founders with data-driven market research, content marketing, and lead generation strategies.',
     siteName: 'Fusion Focus',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Fusion Focus | Market Research for SaaS Founders',
+    title: 'Fusion Focus | All in one platform for SaaS Founders',
     description: 'Empowering SaaS founders with data-driven market research, content marketing, and lead generation strategies.',
     creator: '@fusionfocus',
   },
