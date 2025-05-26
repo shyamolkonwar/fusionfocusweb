@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef } from "react";
-import Link from "next/link";
 import { useInView } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Code2, Sparkles, Zap } from "lucide-react";
@@ -9,6 +8,13 @@ import { Code2, Sparkles, Zap } from "lucide-react";
 export function NoCodeBlueprintCTA() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
+  
+  const scrollToGrowthBlueprints = () => {
+    const section = document.getElementById('growth-blueprints');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   
   return (
     <section className="py-16 bg-gradient-to-br from-primary/5 to-primary/10">
@@ -70,7 +76,7 @@ export function NoCodeBlueprintCTA() {
             
             <Button 
               size="lg" 
-              asChild
+              onClick={scrollToGrowthBlueprints}
               style={{
                 transform: isInView ? "none" : "translateY(20px)",
                 opacity: isInView ? 1 : 0,
@@ -78,9 +84,7 @@ export function NoCodeBlueprintCTA() {
                 transitionDelay: "300ms"
               }}
             >
-              <Link href="/growth-blueprints">
-                Get No-Code Growth Blueprints
-              </Link>
+              Get No-Code Growth Blueprints
             </Button>
           </div>
         </div>

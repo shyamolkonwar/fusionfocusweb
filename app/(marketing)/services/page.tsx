@@ -161,7 +161,7 @@ export default async function ServicesPage() {
                 </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
-                <Link href="/growth-blueprints">
+                <Link href="/#growth-blueprints">
                   View Growth Blueprints
                 </Link>
               </Button>

@@ -16,14 +16,19 @@ import {
   Layers,
   Calendar,
 } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
 import { GrowthBlueprint, Service, ContactSubmission } from "@/types/supabase";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { User } from "@supabase/auth-helpers-nextjs";
 
 export default function AdminDashboardPage() {
-  const { user, isAdmin, loading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  
+  // Auth states
+  const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
   
   // Data states
   const [blueprints, setBlueprints] = useState<GrowthBlueprint[]>([]);
@@ -31,47 +36,83 @@ export default function AdminDashboardPage() {
   const [contacts, setContacts] = useState<ContactSubmission[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   
-  // Fetch data from API routes
+  // Check authentication first
   useEffect(() => {
-    async function fetchData() {
-      if (!user || !isAdmin) return;
-      
-      setDataLoading(true);
-      
+    async function checkAuth() {
       try {
-        // Fetch growth blueprints from API
-        const blueprintsRes = await fetch('/api/admin/growth-blueprints');
-        if (!blueprintsRes.ok) throw new Error('Failed to fetch blueprints');
-        const blueprintsData = await blueprintsRes.json();
+        // Get current session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         
-        // Fetch services from API
-        const servicesRes = await fetch('/api/admin/services');
-        if (!servicesRes.ok) throw new Error('Failed to fetch services');
-        const servicesData = await servicesRes.json();
+        if (sessionError || !sessionData.session) {
+          // No session, redirect to login
+          router.push('/admin/login');
+          return;
+        }
         
-        // Fetch contact submissions from API
-        const contactsRes = await fetch('/api/admin/contacts');
-        if (!contactsRes.ok) throw new Error('Failed to fetch contacts');
-        const contactsData = await contactsRes.json();
+        setUser(sessionData.session.user);
         
-        // Update state
-        setBlueprints(blueprintsData);
-        setServices(servicesData);
-        setContacts(contactsData);
+        // Check if user is admin
+        const { data: adminData, error: adminError } = await supabase
+          .from('admins')
+          .select('*')
+          .eq('email', sessionData.session.user.email)
+          .single();
+        
+        if (adminError || !adminData) {
+          // Not an admin, redirect
+          router.push('/unauthorized');
+          return;
+        }
+        
+        setIsAdmin(true);
+        setLoading(false);
+        
+        // Fetch dashboard data
+        fetchData();
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        toast({
-          title: "Error loading data",
-          description: "There was a problem loading the dashboard data. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setDataLoading(false);
+        console.error('Auth check error:', error);
+        router.push('/admin/login');
       }
     }
     
-    fetchData();
-  }, [user, isAdmin, toast]);
+    checkAuth();
+  }, [router]);
+  
+  // Fetch data from API routes
+  async function fetchData() {
+    setDataLoading(true);
+    
+    try {
+      // Fetch growth blueprints from API
+      const blueprintsRes = await fetch('/api/admin/growth-blueprints');
+      if (!blueprintsRes.ok) throw new Error('Failed to fetch blueprints');
+      const blueprintsData = await blueprintsRes.json();
+      
+      // Fetch services from API
+      const servicesRes = await fetch('/api/admin/services');
+      if (!servicesRes.ok) throw new Error('Failed to fetch services');
+      const servicesData = await servicesRes.json();
+      
+      // Fetch contact submissions from API
+      const contactsRes = await fetch('/api/admin/contacts');
+      if (!contactsRes.ok) throw new Error('Failed to fetch contacts');
+      const contactsData = await contactsRes.json();
+      
+      // Update state
+      setBlueprints(blueprintsData);
+      setServices(servicesData);
+      setContacts(contactsData);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      toast({
+        title: "Error loading data",
+        description: "There was a problem loading the dashboard data. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setDataLoading(false);
+    }
+  }
   
   // Function to format date
   const formatDate = (dateString: string) => {
@@ -90,6 +131,7 @@ export default function AdminDashboardPage() {
   const publishedServices = services.filter(s => s.published).length;
   const newContactsCount = contacts.filter(c => c.status === 'new').length;
   
+  // Show loading state during initial load
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-64px)]">
@@ -99,11 +141,6 @@ export default function AdminDashboardPage() {
         </div>
       </div>
     );
-  }
-  
-  if (!user || !isAdmin) {
-    router.push("/admin/login");
-    return null;
   }
   
   return (

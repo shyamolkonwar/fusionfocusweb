@@ -27,8 +27,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/lib/supabase";
+import { User } from "@supabase/auth-helpers-nextjs";
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -38,42 +39,84 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isMounted, setIsMounted] = useState(false);
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const [user, setUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
   
-  // Only run authentication check on client side
+  // Check authentication on component mount
   useEffect(() => {
-    setIsMounted(true);
-    
-    // If on admin page but not login page and not authenticated or loading, show loading state
-    if (!loading && pathname !== "/admin/login" && !user) {
-      router.push("/admin/login");
+    async function checkAuth() {
+      try {
+        setIsMounted(true);
+        
+        // Get current session
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError || !sessionData.session) {
+          // No session, redirect to login if not on login page
+          if (pathname !== "/admin/login") {
+            console.log("Redirecting to login because user is not authenticated");
+            router.push("/admin/login");
+          }
+          setLoading(false);
+          return;
+        }
+        
+        setUser(sessionData.session.user);
+        
+        // Check if user is admin
+        const { data: adminData, error: adminError } = await supabase
+          .from('admins')
+          .select('*')
+          .eq('email', sessionData.session.user.email)
+          .single();
+        
+        if (adminError || !adminData) {
+          // Not an admin, redirect if not on login page
+          if (pathname !== "/admin/login") {
+            console.log("Redirecting to unauthorized because user is not an admin");
+            toast({
+              title: "Unauthorized",
+              description: "You don't have permission to access the admin area.",
+              variant: "destructive",
+            });
+            router.push("/unauthorized");
+          }
+          setLoading(false);
+          return;
+        }
+        
+        setIsAdmin(true);
+        setLoading(false);
+      } catch (error) {
+        console.error("Auth check error:", error);
+        setLoading(false);
+        if (pathname !== "/admin/login") {
+          router.push("/admin/login");
+        }
+      }
     }
     
-    // If authenticated but not admin, redirect to unauthorized page
-    if (!loading && user && !isAdmin && pathname !== "/admin/login") {
-      toast({
-        title: "Unauthorized",
-        description: "You don't have permission to access the admin area.",
-        variant: "destructive",
-      });
-      router.push("/unauthorized");
-    }
-  }, [pathname, router, user, isAdmin, loading, toast]);
+    checkAuth();
+  }, [pathname, router, toast]);
   
   // Handle logout
   const handleLogout = async () => {
     try {
-      // Use signOut from auth context instead of direct Supabase client
-      await signOut();
+      // Sign out with Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
       
       toast({
         title: "Logged out successfully",
       });
       
-      // Force reload to clear any auth state
-      router.push("/admin/login");
-      router.refresh();
+      // Redirect to login page
+      window.location.href = "/admin/login";
     } catch (error) {
       console.error("Logout error:", error);
       toast({

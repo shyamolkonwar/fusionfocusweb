@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/lib/supabase";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -27,33 +27,12 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function AdminLoginPage() {
-  const { user, isAdmin, loading, signIn } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams?.get("redirectTo") || "/admin/dashboard";
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [pageLoading, setPageLoading] = useState(true);
   const { toast } = useToast();
-
-  // Check if user is already logged in and redirect
-  useEffect(() => {
-    const checkAuthAndRedirect = async () => {
-      // Wait for auth context to load
-      if (loading) return;
-      
-      // If user is logged in and is admin, redirect to dashboard
-      if (user && isAdmin) {
-        router.push(redirectTo);
-        return;
-      }
-      
-      // User is not logged in or not admin, show login form
-      setPageLoading(false);
-    };
-    
-    checkAuthAndRedirect();
-  }, [user, isAdmin, loading, router, redirectTo]);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -68,15 +47,38 @@ export default function AdminLoginPage() {
     setErrorMessage(null);
 
     try {
-      // Use the auth context signIn method which uses the API route
-      await signIn(data.email, data.password);
-      
+      // Sign in with Supabase directly
+      const { data: authData, error } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!authData.session || !authData.user) {
+        throw new Error("Authentication failed");
+      }
+
+      // Check if user is admin
+      const { data: adminData, error: adminError } = await supabase
+        .from('admins')
+        .select('*')
+        .eq('email', authData.user.email)
+        .single();
+
+      if (adminError || !adminData) {
+        throw new Error("You do not have admin privileges");
+      }
+
       toast({
         title: "Login successful",
         description: "Redirecting to dashboard...",
       });
-      
-      router.push(redirectTo);
+
+      // Use window.location for a full page refresh
+      window.location.href = redirectTo;
     } catch (error) {
       console.error("Login error:", error);
       
@@ -95,15 +97,6 @@ export default function AdminLoginPage() {
     } finally {
       setIsLoading(false);
     }
-  }
-
-  // Show loading state while checking auth
-  if (pageLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
   }
 
   return (

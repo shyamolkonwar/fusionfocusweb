@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
   const supabase = createMiddlewareClient<Database>({ req, res });
 
-  // Refresh the session if it exists
+  // Get the user session
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -20,6 +20,7 @@ export async function middleware(req: NextRequest) {
       return res;
     }
 
+    // Redirect to login
     const redirectUrl = new URL('/admin/login', req.url);
     redirectUrl.searchParams.set('redirectTo', req.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
@@ -45,7 +46,6 @@ export async function middleware(req: NextRequest) {
         return NextResponse.redirect(new URL('/unauthorized', req.url));
       }
     } catch (error) {
-      console.error('Error checking admin status in middleware:', error);
       // If there's an error, redirect to unauthorized page
       return NextResponse.redirect(new URL('/unauthorized', req.url));
     }

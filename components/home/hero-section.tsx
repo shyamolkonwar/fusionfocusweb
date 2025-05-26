@@ -29,6 +29,13 @@ export function HeroSection() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.3 });
   
+  const scrollToBlueprintBenefits = () => {
+    const section = document.getElementById('growth-blueprints');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+  
   return (
     <section className="relative overflow-hidden">
       {/* Background elements */}
@@ -63,10 +70,12 @@ export function HeroSection() {
                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg">
-                  <Link href="/growth-blueprints">
-                    Read Blueprints
-                  </Link>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  onClick={scrollToBlueprintBenefits}
+                >
+                  Read Blueprints
                 </Button>
               </div>
             </div>

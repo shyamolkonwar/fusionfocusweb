@@ -4,8 +4,7 @@ import { openSauce, montserrat } from './fonts';
 import { ThemeProvider } from '@/components/ui/theme-provider';
 import { Navbar } from '@/components/layout/navbar';
 import { Footer } from '@/components/layout/footer';
-import { AuthProvider } from '@/lib/auth-context';
-import { usePathname } from 'next/navigation';
+import Script from 'next/script';
 
 export const metadata: Metadata = {
   title: {
@@ -39,6 +38,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-6DFFZ1EBJF"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-6DFFZ1EBJF');
+          `}
+        </Script>
+      </head>
       <body className={`${openSauce.variable} ${montserrat.variable} font-montserrat`}>
         <ThemeProvider
           attribute="class"
@@ -46,9 +60,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          <AuthProvider>
-            {children}
-          </AuthProvider>
+          {children}
         </ThemeProvider>
       </body>
     </html>

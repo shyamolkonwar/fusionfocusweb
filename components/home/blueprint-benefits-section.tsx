@@ -15,7 +15,6 @@ import {
   ChartPie
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { useInView } from "framer-motion";
 
 type BenefitCardProps = {
@@ -55,6 +54,13 @@ export function BlueprintBenefitsSection() {
   const processRef = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.1 });
   const isProcessInView = useInView(processRef, { once: true, amount: 0.1 });
+  
+  const scrollToGrowthBlueprints = () => {
+    const section = document.getElementById('growth-blueprints');
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
   
   const benefits = [
     {
@@ -113,7 +119,7 @@ export function BlueprintBenefitsSection() {
   ];
 
   return (
-    <section className="py-16 bg-muted/30">
+    <section className="py-16 bg-muted/30" id="blueprint-benefits">
       <div className="container mx-auto px-4">
         <div ref={ref}>
           <div className="text-center max-w-3xl mx-auto mb-12">
@@ -148,10 +154,11 @@ export function BlueprintBenefitsSection() {
               transitionDelay: "600ms"
             }}
           >
-            <Button asChild size="lg">
-              <Link href="/growth-blueprints">
-                Explore All Growth Blueprints
-              </Link>
+            <Button 
+              size="lg" 
+              onClick={scrollToGrowthBlueprints}
+            >
+              Explore Growth Blueprints
             </Button>
           </div>
         </div>

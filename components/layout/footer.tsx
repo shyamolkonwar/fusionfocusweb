@@ -15,7 +15,7 @@ const footerLinks = [
     links: [
       { name: "About", href: "/about" },
       { name: "Services", href: "/services" },
-      { name: "Growth Blueprints", href: "/growth-blueprints" },
+      { name: "Growth Blueprints", href: "/#growth-blueprints" },
       // { name: "Blog", href: "/blog" },
       { name: "Contact", href: "/contact" },
     ],
@@ -24,7 +24,7 @@ const footerLinks = [
     title: "Resources",
     links: [
       // { name: "Research Insights", href: "/blog" },
-      { name: "Growth Blueprints", href: "/growth-blueprints" },
+      { name: "Growth Blueprints", href: "/#growth-blueprints" },
       // { name: "FAQs", href: "/faqs" },
       { name: "Privacy Policy", href: "/privacy-policy" },
       { name: "Terms of Service", href: "/terms-of-service" },

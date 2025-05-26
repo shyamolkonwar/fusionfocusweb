@@ -10,7 +10,7 @@ import { MenuIcon, X } from "lucide-react";
 
 const NavItems = [
   { name: "Home", path: "/" },
-  { name: "Growth Blueprints", path: "/growth-blueprints" },
+  { name: "Growth Blueprints", path: "/#growth-blueprints" },
   { name: "Services", path: "/services" },
   // { name: "Blog", path: "/blog" },
   { name: "About", path: "/about" },
@@ -33,6 +33,19 @@ export function Navbar() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  const handleNavLinkClick = (path: string) => {
+    setMobileMenuOpen(false);
+    
+    // If it's a hash link on the current page, handle smooth scrolling
+    if (path.startsWith('/#') && pathname === '/') {
+      const sectionId = path.substring(2);
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <header
@@ -59,9 +72,10 @@ export function Navbar() {
               <Link
                 key={item.path}
                 href={item.path}
+                onClick={() => handleNavLinkClick(item.path)}
                 className={cn(
                   "px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                  pathname === item.path
+                  pathname === item.path.split('#')[0]
                     ? "text-primary font-semibold"
                     : "text-muted-foreground hover:text-primary"
                 )}
@@ -102,10 +116,10 @@ export function Navbar() {
                 <Link
                   key={item.path}
                   href={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={() => handleNavLinkClick(item.path)}
                   className={cn(
                     "px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                    pathname === item.path
+                    pathname === item.path.split('#')[0]
                       ? "bg-primary/10 text-primary font-semibold"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   )}
