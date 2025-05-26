@@ -42,7 +42,7 @@ type ServiceParams = {
 export async function generateStaticParams() {
   try {
     // Create an absolute URL - this is required for server components
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = new URL('/api/services', baseUrl);
     
     const response = await fetch(url, {
@@ -76,7 +76,7 @@ export async function generateStaticParams() {
 async function getServiceData(slug: string): Promise<Service | null> {
   try {
     // Create an absolute URL - this is required for server components
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = new URL(`/api/services/${slug}`, baseUrl);
     
     const response = await fetch(url, {
@@ -264,7 +264,7 @@ export default async function ServicePage({ params }: ServiceParams) {
 async function getAllServices() {
   try {
     // Create an absolute URL - this is required for server components
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = new URL('/api/services', baseUrl);
     
     const response = await fetch(url);
@@ -283,7 +283,7 @@ async function getAllServices() {
 async function getServiceBySlug(slug: string) {
   try {
     // Create an absolute URL - this is required for server components
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = new URL(`/api/services/${slug}`, baseUrl);
     
     const response = await fetch(url, {

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 async function getServices(): Promise<Service[]> {
   try {
     // Create an absolute URL - this is required for server components
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = new URL('/api/services', baseUrl);
     
     // Fetch services from the API route

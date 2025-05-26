@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 async function getBlueprint(slug: string): Promise<GrowthBlueprint | null> {
   try {
     // Create an absolute URL - this is required for server components
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = new URL(`/api/growth-blueprints/${slug}`, baseUrl);
     
     const response = await fetch(url, {
@@ -52,7 +52,7 @@ async function getBlueprint(slug: string): Promise<GrowthBlueprint | null> {
 async function getRelatedBlueprints(currentSlug: string): Promise<GrowthBlueprint[]> {
   try {
     // Create an absolute URL - this is required for server components
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = new URL('/api/growth-blueprints', baseUrl);
     
     const response = await fetch(url);
@@ -75,7 +75,7 @@ async function getRelatedBlueprints(currentSlug: string): Promise<GrowthBlueprin
 export async function generateStaticParams() {
   try {
     // Create an absolute URL - this is required for server components
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     const url = new URL('/api/growth-blueprints', baseUrl);
     
     const response = await fetch(url);
