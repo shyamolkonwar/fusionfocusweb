@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Metadata } from "next";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { Button } from "@/components/ui/button";
@@ -40,29 +39,35 @@ type ServiceParams = {
   };
 };
 
-// Placeholder component for services without images
-function PlaceholderImage({ title }: { title: string }) {
-  return (
-    <div className="absolute inset-0 w-full h-full bg-amber-500 flex items-center justify-center">
-      <div className="text-white text-4xl font-bold text-center px-4">
-        Fusion Focus
-      </div>
-    </div>
-  );
-}
-
 export async function generateStaticParams() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/services`);
+    // Create an absolute URL - this is required for server components
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const url = new URL('/api/services', baseUrl);
+    
+    const response = await fetch(url, {
+      next: { revalidate: 3600 } // Cache for 1 hour
+    });
+    
     if (!response.ok) {
+      console.error(`Failed to fetch services for static params: ${response.status}`);
+      // Return empty array to avoid build errors, pages will be generated on-demand
       return [];
     }
+    
     const services = await response.json();
+    
+    if (!Array.isArray(services) || services.length === 0) {
+      console.warn("No services found or invalid response format for static generation");
+      return [];
+    }
+    
     return services.map((service: Service) => ({
       slug: service.slug,
     }));
   } catch (error) {
     console.error("Error generating static params:", error);
+    // Return empty array to avoid build errors, pages will be generated on-demand
     return [];
   }
 }
@@ -70,18 +75,30 @@ export async function generateStaticParams() {
 // Get service data from API
 async function getServiceData(slug: string): Promise<Service | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/services/${slug}`, {
-      cache: 'no-cache' // Ensure we get fresh data
+    // Create an absolute URL - this is required for server components
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const url = new URL(`/api/services/${slug}`, baseUrl);
+    
+    const response = await fetch(url, {
+      next: { revalidate: 3600 } // Cache for 1 hour instead of no-cache
     });
     
     if (!response.ok) {
+      console.error(`Failed to fetch service data for slug ${slug}: ${response.status}`);
       return null;
     }
     
     const data = await response.json();
+    
+    // Validate that we got a proper service object
+    if (!data || typeof data !== 'object' || !data.title) {
+      console.error(`Invalid service data received for slug ${slug}`);
+      return null;
+    }
+    
     return data;
   } catch (error) {
-    console.error('Error fetching service:', error);
+    console.error(`Error fetching service with slug ${slug}:`, error);
     return null;
   }
 }
@@ -123,23 +140,10 @@ export default async function ServicePage({ params }: ServiceParams) {
     "Measurable results and continuous improvement"
   ];
   
-  // Default image as fallback
-  const defaultImage = "/placeholder-service.jpg";
-  
   return (
     <div className="pt-16 pb-24">
-      {/* Hero Section */}
+      {/* Hero Section - Now just using gradient background */}
       <div className="relative h-80 md:h-96 bg-gradient-to-r from-primary/80 to-primary/50">
-        {service.heroImage || service.image_url ? (
-          <Image
-            src={service.heroImage || service.image_url || defaultImage}
-            alt={service.title}
-            fill
-            className="object-cover opacity-30 mix-blend-overlay"
-          />
-        ) : (
-          <PlaceholderImage title={service.title} />
-        )}
         <div className="container mx-auto px-4 h-full flex flex-col justify-center z-10 relative">
           <h1 className="text-4xl md:text-5xl font-bold font-opensauce text-white mb-4">
             {service.title}
@@ -255,4 +259,44 @@ export default async function ServicePage({ params }: ServiceParams) {
       </div>
     </div>
   );
+}
+
+async function getAllServices() {
+  try {
+    // Create an absolute URL - this is required for server components
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const url = new URL('/api/services', baseUrl);
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch services');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching all services:', error);
+    return [];
+  }
+}
+
+async function getServiceBySlug(slug: string) {
+  try {
+    // Create an absolute URL - this is required for server components
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const url = new URL(`/api/services/${slug}`, baseUrl);
+    
+    const response = await fetch(url, {
+      next: { revalidate: 3600 } // Revalidate every hour
+    });
+    
+    if (!response.ok) {
+      return null;
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error(`Error fetching service with slug ${slug}:`, error);
+    return null;
+  }
 } 

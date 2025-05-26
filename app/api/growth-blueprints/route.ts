@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase';
 
+// This tells Next.js this is a dynamic route that shouldn't be statically optimized
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -25,7 +28,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch growth blueprints' }, { status: 500 });
     }
     
-    return NextResponse.json(data);
+    return NextResponse.json(data || []);
   } catch (error) {
     console.error('Error in growth blueprints API route:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

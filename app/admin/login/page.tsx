@@ -30,7 +30,7 @@ export default function AdminLoginPage() {
   const { user, isAdmin, loading, signIn } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") || "/admin/dashboard";
+  const redirectTo = searchParams?.get("redirectTo") || "/admin/dashboard";
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [pageLoading, setPageLoading] = useState(true);

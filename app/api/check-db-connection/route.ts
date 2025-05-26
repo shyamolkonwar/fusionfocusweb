@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import type { Database } from '@/types/database';
+import { createServerSupabaseClient } from '@/lib/supabase';
+
+// This tells Next.js this is a dynamic route that shouldn't be statically optimized
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // Create Supabase client with cookies
-    const cookieStore = cookies();
-    const supabase = createRouteHandlerClient<Database>({ cookies: () => cookieStore });
+    // Create Supabase client without cookies
+    const supabase = createServerSupabaseClient();
     
     // Test query - get the count of admins
     const { count, error } = await supabase

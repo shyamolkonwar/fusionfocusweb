@@ -25,7 +25,11 @@ function PlaceholderImage({ title }: { title: string }) {
 
 async function getBlueprints() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/growth-blueprints`, {
+    // Create an absolute URL - this is required for server components
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const url = new URL('/api/growth-blueprints', baseUrl);
+    
+    const response = await fetch(url, {
       cache: 'no-cache' // Ensure we get fresh data
     });
     

@@ -27,9 +27,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-async function getBlueprint(slug: string) {
+async function getBlueprint(slug: string): Promise<GrowthBlueprint | null> {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/growth-blueprints/${slug}`, {
+    // Create an absolute URL - this is required for server components
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const url = new URL(`/api/growth-blueprints/${slug}`, baseUrl);
+    
+    const response = await fetch(url, {
       cache: 'no-cache' // Ensure we get fresh data
     });
     
@@ -38,16 +42,43 @@ async function getBlueprint(slug: string) {
     }
     
     const data = await response.json();
-    return data as GrowthBlueprint;
+    return data;
   } catch (error) {
-    console.error('Error fetching growth blueprint:', error);
+    console.error(`Error fetching blueprint with slug ${slug}:`, error);
     return null;
+  }
+}
+
+async function getRelatedBlueprints(currentSlug: string): Promise<GrowthBlueprint[]> {
+  try {
+    // Create an absolute URL - this is required for server components
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const url = new URL('/api/growth-blueprints', baseUrl);
+    
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      return [];
+    }
+    
+    const data = await response.json();
+    // Filter out the current blueprint and limit to 3 related blueprints
+    return data
+      .filter((blueprint: GrowthBlueprint) => blueprint.slug !== currentSlug)
+      .slice(0, 3);
+  } catch (error) {
+    console.error('Error fetching related blueprints:', error);
+    return [];
   }
 }
 
 export async function generateStaticParams() {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ''}/api/growth-blueprints`);
+    // Create an absolute URL - this is required for server components
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const url = new URL('/api/growth-blueprints', baseUrl);
+    
+    const response = await fetch(url);
     
     if (!response.ok) {
       return [];
