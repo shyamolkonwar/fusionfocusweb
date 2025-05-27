@@ -61,7 +61,7 @@ export function GrowthBlueprintsSection() {
               variant="default" 
               size="lg"
               className="group"
-              onClick={() => window.open("https://growthblueprints.fusionfocus.io", "_blank")}
+              onClick={() => window.open("research.fusionfocus.in", "_blank")}
             >
               Access Growth Blueprints
               <ExternalLink className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
